@@ -1,3 +1,5 @@
+import numpy as np
+
 def cholesky_decomp(A):
     L = np.zeros_like(A)
     n = len(L)
@@ -14,23 +16,23 @@ def is_pos_def(x):
 
 def solve_cholesky_forwards(A, b):
     n = len(b)
-    x = np.zeros_like(b)
-    for i in range(n):
-        if i==0:
-            x[0] = b[0] / A[0, 0]
-        else:
-            x[i] = (b[i] - A[i, i - 1] * x[i - 1]) / A[i, i]
-    return x
+    x = []
+    x.append(b[0] / A[0, 0])
+    for i in range(1,n):
+        x.append((b[i] - A[i, i - 1] * x[i - 1]) / A[i, i])
+    return np.array(x)
 
 def solve_cholesky_backwards(A, b):
     n = len(b)
-    x = np.zeros_like(b)
+    x = []
+    count = 0
     for i in range(n-1,-1,-1):
         if i == n-1:
-            x[n-1] = b[n - 1] / A[n - 1, n - 1]
+            x.append(b[n - 1] / A[n - 1, n - 1])
         else:
-            x[i] = (b[i] - A[i, i + 1] * x[i + 1]) / A[i, i]
-    return x
+            count += 1
+            x.append((b[i] - A[i, i + 1] * x[count - 1]) / A[i, i])
+    return np.array(x[::-1])
 
 def solve_cholesky(A,b):
     L = cholesky_decomp(A)

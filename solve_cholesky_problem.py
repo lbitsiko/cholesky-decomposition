@@ -18,3 +18,5 @@ b = np.arange(2, 502)
 
 
 my_solution = solve_cholesky(A,b)
+np_solution = np.linalg.solve(A,b)
+print(np.allclose(my_solution, np_solution))
