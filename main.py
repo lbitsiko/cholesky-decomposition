@@ -1,6 +1,8 @@
 import numpy as np
 
 # test that my cholesky decomosition is correct
+from cholesky_functions import cholesky_decomp, is_pos_def, solve_cholesky
+
 A = np.random.randn(10,10)
 A = A.dot(A.T) # now A is positive definite
 my_cholesky_decomposition = cholesky_decomp(A)

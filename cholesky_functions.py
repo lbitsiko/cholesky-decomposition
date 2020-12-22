@@ -16,22 +16,18 @@ def is_pos_def(x):
 
 def solve_cholesky_forwards(A, b):
     n = len(b)
-    x = []
-    x.append(b[0] / A[0, 0])
+    x = [b[0] / A[0, 0]]
     for i in range(1,n):
         x.append((b[i] - A[i, i - 1] * x[i - 1]) / A[i, i])
     return np.array(x)
 
 def solve_cholesky_backwards(A, b):
     n = len(b)
-    x = []
+    x = [b[n - 1] / A[n - 1, n - 1]] # that's the last element, so will have to reverse x in the end
     count = 0
-    for i in range(n-1,-1,-1):
-        if i == n-1:
-            x.append(b[n - 1] / A[n - 1, n - 1])
-        else:
-            count += 1
-            x.append((b[i] - A[i, i + 1] * x[count - 1]) / A[i, i])
+    for i in range(n-2,-1,-1):
+        count += 1
+        x.append((b[i] - A[i, i + 1] * x[count - 1]) / A[i, i])
     return np.array(x[::-1])
 
 def solve_cholesky(A,b):
