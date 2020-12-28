@@ -38,7 +38,7 @@ def lu_decomp(A):
 d = np.float64(np.arange(1001,1101))
 es = np.float64(np.arange(3, 103))
 fs = np.float64(np.arange(2, 102))
-# b = np.arange(2, 502)
+
 
 from scipy.sparse import spdiags
 diagonal_elements = np.array([d, es, fs])
@@ -49,3 +49,34 @@ L, U = lu_decomp(A)
 
 # import  scipy.linalg
 # a1, a2,a3 = scipy.linalg.lu(A)
+
+b = np.arange(2, 102)
+
+def solve_LU(A,b):
+    L, U = lu_decomp(A)
+
+    Ls = L.diagonal()
+    Us = U.diagonal(1)
+    es = L.diagonal(-1)
+
+    y = [b[0]/Ls[0]]
+    n=len(b)
+    for i in range(1,n):
+        y.append((b[i]-es[i-1]*y[i-1])/Ls[i])
+    y = np.array(y)
+
+    x = [y[len(y)-1]]
+    count = 0
+    for i in range(n-2,-1,-1):
+        x.append(y[i] - Us[i]*x[count])
+        count += 1
+    return np.array(x[::-1])
+
+solution = solve_LU(A,b)
+np_solution = np.linalg.solve(A,b)
+
+print(np.allclose(solution, np_solution, rtol=1e-04 ))
+# import  matplotlib.pyplot as plt
+# plt.plot(solution,'o')
+# plt.plot(np_solution,'o')
+# plt.show()
