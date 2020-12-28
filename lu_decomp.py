@@ -1,9 +1,10 @@
 import numpy as np
 
-def lu_decomp(A):
+# decompose a tridiagonal matrix into its LU decomposition (A=LU)
+def decomp_LU_tridiag(A):
     Ls = []
     Us = []
-    n = len(A)
+    n = A.shape[0]
 
     ds = A.diagonal()
     es = A.diagonal(-1)
@@ -26,34 +27,28 @@ def lu_decomp(A):
     #array Ls to diagonal matrix L
     diags_forL = np.array([Ls, es])
     positions_of_diags_forL = np.array([0, -1])
-    L = spdiags(diags_forL, positions_of_diags_forL, 100, 100)
+    L = spdiags(diags_forL, positions_of_diags_forL, n, n)
 
     #array Us to diagonal matrix U
-    diags_forU = np.array([Us, np.ones(100)])
+    diags_forU = np.array([Us, np.ones(n)])
     positions_of_diags_forU = np.array([1, 0])
-    U = spdiags(diags_forU, positions_of_diags_forU, 100, 100)
+    U = spdiags(diags_forU, positions_of_diags_forU, n, n)
 
     return L, U
 
-d = np.float64(np.arange(1001,1101))
-es = np.float64(np.arange(3, 103))
-fs = np.float64(np.arange(2, 102))
-
+#store matrix A as a tridiagonal matrix
+d = np.float64(np.arange(1001,1101)) #principal diagonal elements, d_i
+es = np.float64(np.arange(3, 103)) #lower diagonal elements, e_i
+fs = np.float64(np.arange(2, 102)) #upper diagonal elements, f_i = e_i
 
 from scipy.sparse import spdiags
 diagonal_elements = np.array([d, es, fs])
 diagonal_positions = np.array([0,-1,1])
-A = spdiags(diagonal_elements, diagonal_positions, 101, 101).toarray()
-A= A[:100,:100]
-L, U = lu_decomp(A)
+A = spdiags(diagonal_elements, diagonal_positions, 100, 100)
 
-# import  scipy.linalg
-# a1, a2,a3 = scipy.linalg.lu(A)
-
-b = np.arange(2, 102)
-
-def solve_LU(A,b):
-    L, U = lu_decomp(A)
+#solve AX=b where A is a triadiagonal matrix
+def solve_tridiag_LU(A,b):
+    L, U = decomp_LU_tridiag(A)
 
     Ls = L.diagonal()
     Us = U.diagonal(1)
@@ -72,11 +67,23 @@ def solve_LU(A,b):
         count += 1
     return np.array(x[::-1])
 
-solution = solve_LU(A,b)
-np_solution = np.linalg.solve(A,b)
+# Solve Ax=b
+b = np.arange(2, 102)
+solution = solve_tridiag_LU(A, b)
+np_solution = np.linalg.solve(A.toarray(), b)
 
-print(np.allclose(solution, np_solution, rtol=1e-04 ))
-# import  matplotlib.pyplot as plt
-# plt.plot(solution,'o')
-# plt.plot(np_solution,'o')
-# plt.show()
+print(np.allclose(solution, np_solution, rtol=1e-04))
+
+import matplotlib.pyplot as plt
+plt.close('all')
+# plt.rcParams['figure.figsize'] = [10, 6]
+# plt.rcParams['figure.dpi'] = 100
+fig = plt.figure()
+ax = plt.axes()
+plt.grid(ls='--')
+plt.plot(solution,'.',label='solution')
+plt.plot(np_solution, '--',label = 'numpy solution')
+plt.legend()
+ax.set_xlabel("i")
+ax.set_ylabel("$x_{i}$")
+plt.show()
